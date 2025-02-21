@@ -1,0 +1,14 @@
+---
+
+mysql_user: "redhat"
+mysql_password: "1234567890"
+
+mysql_db_name: test
+insert_data_list:
+ - id: 1
+   name: Jerry
+ - id: 2
+   name: Jerry2
+ - id: 3
+   name: Jerry3
+   

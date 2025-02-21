@@ -1,0 +1,25 @@
+---
+
+- hosts: db
+  gather_facts: false
+  become: true
+  serial: 1
+  any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
+  roles:
+  - { role: roles/mysql, tags: mysql }
+
+- hosts: web
+  gather_facts: false
+  become: true
+  serial: 1
+  any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
+  roles:
+  - { role: roles/httpd, tags: apache }
+
+- hosts: web
+  gather_facts: false
+  become: true
+  serial: 1
+  any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
+  roles:
+  - { role: roles/php, tags: php }

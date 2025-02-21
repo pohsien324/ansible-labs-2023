@@ -1,0 +1,38 @@
+---
+
+- name: Installing MySQL Server packages
+  ansible.builtin.yum:
+    name: "{{ mysql_packages }}"
+    state: latest
+
+- name: Start MySQL server
+  ansible.builtin.systemd:
+    name: "{{ mysql_service }}"
+    enabled: true
+    state: started
+
+- name: Check mysql_root_password length >= 10
+  when: (mysql_password | length) < 10
+  ansible.builtin.fail: 
+    msg: "MySQL password invalid length, must >= 10 chars"
+
+- name: Create \'{{ mysql_user }}\' user for mariaDB
+  community.mysql.mysql_user:
+    login_unix_socket: /var/lib/mysql/mysql.sock
+    check_implicit_admin: true
+    user: "{{ mysql_user }}"
+    password: "{{ mysql_password }}"
+    host: localhost
+    priv: "*.*:CREATE,SELECT,INSERT"
+    state: present
+
+- name: Collect info about database information
+  community.mysql.mysql_info:
+    login_user: "{{ mysql_user }}"
+    login_password: "{{ mysql_password }}"
+    filter: version
+  register: mysql_info_data
+
+- name: Display the database information
+  ansible.builtin.debug:
+    var: mysql_info_data

@@ -1,0 +1,25 @@
+---
+
+- name: Installing PHP packages
+  ansible.builtin.dnf:
+    name: "{{ php_packages }}"
+    state: latest
+
+- name: Start PHP-FPM
+  ansible.builtin.systemd:
+    name: php-fpm
+    enabled: true
+    state: restarted
+  notify: 
+  - Restart apache server
+  - Test PHP info page
+
+- name: Copy info.php page
+  ansible.builtin.copy:
+    src: info.php
+    dest: /var/www/html/info.php
+
+- name: Create employee.php page
+  ansible.builtin.template:
+    src: "employee.php.j2"
+    dest: "/var/www/html/employee.php"

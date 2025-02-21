@@ -1,0 +1,6 @@
+---
+
+mysql_packages: []
+mysql_user: "redhat"
+mysql_password: "1234567890"
+mysql_db_name: "test"

@@ -1,0 +1,12 @@
+---
+    
+- name: Restart apache server
+  ansible.builtin.systemd: 
+    name: "{{ apache_service }}"
+    state: restarted
+    enabled: yes
+
+- name: Test PHP info page
+  ansible.builtin.uri:
+    url: "http://localhost:{{ apache_listen_port }}/info.php"    
+  changed_when: False

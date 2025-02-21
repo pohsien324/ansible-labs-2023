@@ -1,0 +1,48 @@
+---
+
+- name: Uninstall httpd
+  hosts: all
+  become: true
+  tasks:
+  - name: close firewall
+    ansible.builtin.shell: |
+      firewall-cmd --remove-service=http --permanent
+      firewall-cmd --reload
+
+  - name: remove http file
+    ansible.builtin.file:
+      path: /var/www/html/index.html
+      state: absent
+
+  - name: remove package
+    ansible.builtin.dnf:
+      name: 
+      - httpd
+      - httpd-tools
+      - mariadb
+      - python3-PyMySQL
+      - mariadb-server
+      - mariadb-devel
+      - mariadb-server-utils
+      - php
+      - php-cli
+      - php-fpm
+      - php-zip
+      - php-devel
+      - php-gd
+      - php-curl
+      - php-mysqlnd
+      - php-mbstring
+      - php-process
+      - php-pear
+      - php-bcmath
+      - php-json
+      state: absent
+  - name: Remove MariaDB data and configuration files
+    ansible.builtin.file:
+      path: "{{ item }}"
+      state: absent
+    loop:
+    - /var/lib/mysql
+    - /etc/my.cnf
+    - /etc/mysql

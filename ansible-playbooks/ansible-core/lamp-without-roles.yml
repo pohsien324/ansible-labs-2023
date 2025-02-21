@@ -1,0 +1,77 @@
+---
+
+- name: Deploying LAMP Stack on RHEL9 
+  hosts: all
+  gather_facts: true
+  become: yes
+  vars:
+    mysql_user: "redhat"
+    mysql_password: "Pass4mysql!"
+  tasks:
+    - name: Installing Apache Server
+      ansible.builtin.dnf:
+        name: httpd
+        state: present
+
+    - name: Create demo index.html
+      ansible.builtin.copy:
+        content: 'welcome to this apache'
+        dest: /var/www/html/index.html
+
+    - name: Start Apache service
+      ansible.builtin.systemd:
+        name: httpd
+        state: started
+        enabled: true
+
+    - name: enable firewall
+      ansible.builtin.shell: |
+        firewall-cmd --add-service=http --permanent
+        firewall-cmd --reload
+    
+    - name: Install PHP Modules
+      ansible.builtin.dnf:
+        name:
+          - php
+          - php-cli
+          - php-fpm
+          - php-zip
+          - php-devel
+          - php-gd
+          - php-curl
+          - php-mysqlnd
+          - php-mbstring
+          - php-process
+          # - php-xmlrpc
+          # - php-xml
+          # - php-xml
+          - php-pear
+          - php-bcmath
+          - php-json
+        state: present
+
+    - name: Install MariaDB
+      ansible.builtin.dnf:
+        name:
+          - mariadb
+          - python3-PyMySQL
+          - mariadb-server
+          # - mariadb-devel
+          - mariadb-server-utils
+        state: latest
+
+    - name: start mariadb
+      ansible.builtin.systemd:
+        name: mariadb
+        enabled: true
+        state: started
+
+    - name: create \'{{ mysql_user }}\' user for mariaDB
+      community.mysql.mysql_user:
+        login_unix_socket: /var/lib/mysql/mysql.sock
+        check_implicit_admin: true
+        user: "{{ mysql_user }}"
+        password: "{{ mysql_password }}"
+        host: localhost
+        priv: "*.*:CREATE,SELECT,INSERT"
+        state: present

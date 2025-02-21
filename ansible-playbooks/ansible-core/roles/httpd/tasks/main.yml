@@ -1,0 +1,35 @@
+--- 
+
+- name: Installing Apache Server packages
+  ansible.builtin.yum:
+    name: "{{ apache_packages }}"
+    state: latest
+  notify: 
+  - Restart apache server
+  - Test if Apache is installed and running
+
+- name: Create defult index.html file
+  ansible.builtin.copy:
+    content: "{{ apache_default_content }}"
+    dest: /var/www/html/index.html
+
+- name: Modify listent port
+  become: yes
+  ansible.builtin.lineinfile:
+    dest:  "{{ apache_conf_dir }}/conf/httpd.conf"
+    regexp: "^Listen [0-9]*"
+    line: "Listen {{ apache_listen_port }}"
+    state: present
+    backrefs: yes
+  notify: 
+  - Reload apache server
+  - Test if Apache is installed and running
+  tags: apache_config
+
+- name: Open firewall for {{ apache_firewalld_port }}
+  ansible.builtin.shell: |
+    firewall-cmd --add-port={{ apache_firewalld_port }}/tcp --permanent
+    firewall-cmd --reload
+
+- name: Check Apache version
+  ansible.builtin.command: "httpd -v"

@@ -1,0 +1,12 @@
+---
+
+php_packages: []
+
+php_database:
+  host: "localhost"
+  username: "redhat"
+  password: "1234567890"
+  name: "test"
+
+apache_listen_port: 80
+ 
